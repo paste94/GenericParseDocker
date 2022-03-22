@@ -1,0 +1,38 @@
+version: '3'
+services:
+
+    mongo:
+        image: mongo
+        ports:
+            - 27017:27017
+        volumes:
+            - ./data-db:/data/db
+
+    parse:
+        image: parseplatform/parse-server
+        ports:
+            - 1337:1337
+        links:
+            - mongo
+        volumes:
+            - './cloud/main.js:/parse-server/cloud/main.js'  
+        environment:
+            - PARSE_SERVER_APPLICATION_ID=***GenericParseServerID***
+            - PARSE_SERVER_CLOUD=/parse-server/cloud/main.js
+            - PARSE_SERVER_MASTER_KEY=***m4st3r_k3y***
+            - PARSE_SERVER_DATABASE_URI=mongodb://mongo:27017/***db_name***
+            - PARSE_SERVER_START_LIVE_QUERY_SERVER=1
+            - PARSE_SERVER_LIVE_QUERY=***{"classNames":["",""]}***
+
+    dashboard:
+        image: parseplatform/parse-dashboard
+        ports:
+            - 4040:4040
+        environment:
+            - PARSE_DASHBOARD_SERVER_URL=http://localhost:1337/parse
+            - PARSE_DASHBOARD_APP_ID=***GenericParseServerID***
+            - PARSE_DASHBOARD_MASTER_KEY=***m4st3r_k3y***
+            - PARSE_DASHBOARD_APP_NAME=MyApp
+            - PARSE_DASHBOARD_ALLOW_INSECURE_HTTP=1
+            - PARSE_DASHBOARD_USER_ID=user
+            - PARSE_DASHBOARD_USER_PASSWORD=pass
